@@ -1,13 +1,10 @@
-// ============================================================
+// ===================================
 // Image Decoding Speed Test for Bruce
-// Tests display.drawXBitmap() performance for different sizes.
-// Also compares with pixel-by-pixel drawing.
-// ============================================================
+// ===================================
 
 var display = require("display");
 var keyboard = require("keyboard");
 
-// ----- Colors -----
 var COL_BLACK = display.color(0, 0, 0);
 var COL_WHITE = display.color(255, 255, 255);
 var COL_GREY  = display.color(127, 127, 127);
@@ -19,9 +16,7 @@ var COL_RED   = display.color(255, 0, 0);
 var W = display.width();
 var H = display.height();
 
-// ----- Helper: generate XBM data (monochrome, 1 bit per pixel) -----
 function generateXBM(width, height, pattern) {
-    // pattern: 0 = solid black, 1 = checkerboard, 2 = stripes
     var bytesPerRow = (width + 7) >> 3;
     var totalBytes = bytesPerRow * height;
     var data = new Uint8Array(totalBytes);
@@ -31,33 +26,30 @@ function generateXBM(width, height, pattern) {
             var bitIndex = x & 7;
             var bit = 0;
             if (pattern === 0) {
-                bit = 1; // solid white (if color is set to white, we want bits=1 for white)
+                bit = 1;
             } else if (pattern === 1) {
-                bit = ((x + y) & 1) ? 1 : 0; // checkerboard
+                bit = ((x + y) & 1) ? 1 : 0;
             } else if (pattern === 2) {
-                bit = (x & 1) ? 1 : 0; // vertical stripes
+                bit = (x & 1) ? 1 : 0;
             }
             if (bit) {
-                data[byteIndex] |= (1 << (7 - bitIndex)); // XBM uses MSB first
+                data[byteIndex] |= (1 << (7 - bitIndex));
             }
         }
     }
     return data;
 }
 
-// ----- Test function -----
 function testXBM(width, height, pattern, iterations) {
     var data = generateXBM(width, height, pattern);
     var totalPixels = width * height;
     var start = Date.now();
     for (var i = 0; i < iterations; i++) {
-        // Draw at a position that fits
         var x = (W - width) / 2;
         var y = (H - height) / 2;
         display.drawXBitmap(x, y, data, width, height, COL_WHITE);
     }
     var elapsed = Date.now() - start;
-    // Return pixels per second
     var pixelsPerSec = (totalPixels * iterations) / (elapsed / 1000);
     return {
         elapsed: elapsed,
@@ -66,7 +58,6 @@ function testXBM(width, height, pattern, iterations) {
     };
 }
 
-// ----- Pixel-by-pixel drawing for comparison -----
 function testPixelDraw(width, height, pattern, iterations) {
     var totalPixels = width * height;
     var start = Date.now();
@@ -78,7 +69,6 @@ function testPixelDraw(width, height, pattern, iterations) {
                 else if (pattern === 1) bit = ((x + y) & 1) ? 1 : 0;
                 else if (pattern === 2) bit = (x & 1) ? 1 : 0;
                 var color = bit ? COL_WHITE : COL_BLACK;
-                // Use drawFillRect for each pixel (not efficient)
                 display.drawFillRect(x, y, 1, 1, color);
             }
         }
@@ -92,20 +82,18 @@ function testPixelDraw(width, height, pattern, iterations) {
     };
 }
 
-// ----- Run tests -----
 function runTests() {
     var sizes = [
         { width: 32, height: 32 },
         { width: 64, height: 64 },
         { width: 128, height: 128 },
-        { width: 160, height: 128 } // full screen for many devices
+        { width: 160, height: 128 }
     ];
-    var pattern = 1; // checkerboard
-    var iterations = 10; // enough to measure
+    var pattern = 1;
+    var iterations = 10;
 
     var results = [];
 
-    // XBM test
     display.drawFillRect(0, 0, W, H, COL_BLACK);
     display.setTextAlign("center", "middle");
     display.setTextColor(COL_CYAN);
@@ -125,7 +113,6 @@ function runTests() {
         });
     }
 
-    // Pixel-by-pixel test (only for small size to avoid long time)
     var smallSize = { width: 32, height: 32 };
     var pixelResult = testPixelDraw(smallSize.width, smallSize.height, pattern, 1);
     results.push({
@@ -138,7 +125,6 @@ function runTests() {
     return results;
 }
 
-// ----- Display results -----
 function displayResults(results) {
     display.drawFillRect(0, 0, W, H, COL_BLACK);
     display.setTextAlign("left", "top");
@@ -170,7 +156,6 @@ function displayResults(results) {
     }
 }
 
-// ----- Main -----
 function main() {
     keyboard.setLongPress(true);
     var results = runTests();
