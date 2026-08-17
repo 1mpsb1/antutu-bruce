@@ -1,15 +1,12 @@
-// ============================================================
+// ==================================
 // Storage & RAM Speed Test for Bruce
-// Tests read/write speed of RAM, SD card, and LittleFS.
-// Results in B/s, KB/s, MB/s.
-// ============================================================
+// ==================================
 
 var display = require("display");
 var keyboard = require("keyboard");
 var storage = require("storage");
 var dialog = require("dialog");
 
-// ----- Colors -----
 var COL_BLACK = display.color(0, 0, 0);
 var COL_WHITE = display.color(255, 255, 255);
 var COL_GREY  = display.color(127, 127, 127);
@@ -21,7 +18,6 @@ var COL_RED   = display.color(255, 0, 0);
 var W = display.width();
 var H = display.height();
 
-// ----- Helpers -----
 function formatSize(bytes) {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
@@ -36,9 +32,8 @@ function formatSpeed(bytesPerSec) {
     return (bytesPerSec / 1073741824).toFixed(2) + " GB/s";
 }
 
-// ----- Test RAM (read access speed) -----
 function testRam() {
-    var size = 50000; // 50 KB
+    var size = 50000;
     display.drawFillRect(0, 0, W, H, COL_BLACK);
     display.setTextAlign("center", "middle");
     display.setTextColor(COL_WHITE);
@@ -68,7 +63,6 @@ function testRam() {
     };
 }
 
-// ----- Test storage (SD or LittleFS) -----
 function testStorage(fs, label) {
     display.drawFillRect(0, 0, W, H, COL_BLACK);
     display.setTextAlign("center", "middle");
@@ -77,15 +71,13 @@ function testStorage(fs, label) {
     display.drawText("Writing 50KB file", W/2, H/2 + 10);
     delay(100);
 
-    var dataSize = 50000; // 50 KB
-    // Generate random string
+    var dataSize = 50000;
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var data = "";
     for (var i = 0; i < dataSize; i++) {
         data += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     var path = "/speedtest.tmp";
-    // Write
     var start = Date.now();
     try {
         storage.write({ fs: fs, path: path }, data, "write");
@@ -96,7 +88,6 @@ function testStorage(fs, label) {
     var writeElapsed = end - start;
     var writeSpeed = dataSize / (writeElapsed / 1000);
 
-    // Read
     display.drawText("Reading file...", W/2, H/2 + 20);
     delay(100);
     start = Date.now();
@@ -110,11 +101,9 @@ function testStorage(fs, label) {
     var readElapsed = end - start;
     var readSpeed = dataSize / (readElapsed / 1000);
 
-    // Clean up
     try {
         storage.remove({ fs: fs, path: path });
     } catch (removeErr) {
-        // ignore
     }
 
     return {
@@ -126,21 +115,17 @@ function testStorage(fs, label) {
     };
 }
 
-// ----- Main -----
 function main() {
     var results = [];
 
-    // 1. RAM
     var ramResult = testRam();
     results.push({ name: "RAM (read)", result: { speed: ramResult.speed, size: ramResult.size, elapsed: ramResult.elapsed } });
 
-    // 2. SD Card
     var hasSD = false;
     try {
         var dir = storage.readdir({ fs: "sd", path: "/" });
         if (dir !== null && dir !== undefined) hasSD = true;
     } catch (sdCheckErr) {
-        // ignore
     }
     if (hasSD) {
         var sdResult = testStorage("sd", "SD Card");
@@ -154,7 +139,6 @@ function main() {
         results.push({ name: "SD Card", result: { error: "Not available" } });
     }
 
-    // 3. LittleFS
     var lfsResult = testStorage("littlefs", "LittleFS");
     if (!lfsResult.error) {
         results.push({ name: "LittleFS (write)", result: { speed: lfsResult.writeSpeed, size: lfsResult.size, elapsed: lfsResult.writeElapsed } });
@@ -163,7 +147,6 @@ function main() {
         results.push({ name: "LittleFS", result: { error: lfsResult.error } });
     }
 
-    // ----- Display results -----
     display.drawFillRect(0, 0, W, H, COL_BLACK);
     display.setTextAlign("left", "top");
     display.setTextSize(1);
