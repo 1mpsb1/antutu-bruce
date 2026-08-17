@@ -1,35 +1,29 @@
-// ============================================================
-// Stress Test - FPS counter with bouncing balls
-// Постоянно спавнит шарики, считает FPS.
-// ESC - выход.
-// ============================================================
+// ==================
+// Balls Stress Test 
+// ==================
 
 var display = require("display");
 var keyboard = require("keyboard");
 
-// ----- Размеры экрана -----
 var W = display.width();
 var H = display.height();
 
-// ----- Цвета -----
 var COL_BLACK = display.color(0, 0, 0);
 var COL_WHITE = display.color(255, 255, 255);
 var COL_GREY  = display.color(127, 127, 127);
 
-// ----- Состояние -----
 var balls = [];
 var spawnCounter = 0;
-var spawnRate = 1; // добавлять каждый N-й кадр
-var maxBalls = 500; // ограничение, чтобы не упасть совсем
+var spawnRate = 1;
+var maxBalls = 500;
 
-// ----- FPS -----
 var frameCount = 0;
 var lastFpsUpdate = Date.now();
 var currentFps = 0;
 
-// ----- Функция создания нового шарика -----
+
 function createBall() {
-    var radius = 2 + Math.floor(Math.random() * 4); // 2-5 пикселей
+    var radius = 2 + Math.floor(Math.random() * 4);
     var x = radius + Math.random() * (W - 2 * radius);
     var y = radius + Math.random() * (H - 2 * radius);
     var vx = (Math.random() - 0.5) * 4;
@@ -47,13 +41,11 @@ function createBall() {
     };
 }
 
-// ----- Обновление физики -----
 function updateBalls() {
     for (var i = 0; i < balls.length; i++) {
         var b = balls[i];
         b.x += b.vx;
         b.y += b.vy;
-        // Отскок от стен
         if (b.x < b.radius || b.x > W - b.radius) {
             b.vx = -b.vx;
             b.x = Math.max(b.radius, Math.min(W - b.radius, b.x));
@@ -65,12 +57,9 @@ function updateBalls() {
     }
 }
 
-// ----- Отрисовка -----
 function drawBalls() {
-    // Заливка фона
     display.drawFillRect(0, 0, W, H, COL_BLACK);
     
-    // Рисуем каждый шарик как закрашенный квадрат (быстрее, чем круги)
     for (var i = 0; i < balls.length; i++) {
         var b = balls[i];
         var size = b.radius * 2;
@@ -80,7 +69,6 @@ function drawBalls() {
     }
 }
 
-// ----- Отображение статистики -----
 function drawStats() {
     display.setTextAlign("left", "top");
     display.setTextSize(1);
@@ -93,24 +81,20 @@ function drawStats() {
     }
 }
 
-// ----- Главный цикл -----
 function main() {
     var exitTest = false;
     keyboard.setLongPress(true);
 
     while (!exitTest) {
-        // ---- Ввод ----
         if (keyboard.getEscPress()) {
             exitTest = true;
             break;
         }
 
-        // ---- Спавн новых шариков ----
         if (balls.length < maxBalls) {
             spawnCounter++;
             if (spawnCounter >= spawnRate) {
                 spawnCounter = 0;
-                // Добавляем 1-3 шарика за раз
                 var count = 1 + Math.floor(Math.random() * 3);
                 for (var i = 0; i < count && balls.length < maxBalls; i++) {
                     balls.push(createBall());
@@ -118,14 +102,11 @@ function main() {
             }
         }
 
-        // ---- Обновление физики ----
         updateBalls();
 
-        // ---- Отрисовка ----
         drawBalls();
         drawStats();
 
-        // ---- FPS счётчик ----
         frameCount++;
         var now = Date.now();
         if (now - lastFpsUpdate >= 1000) {
@@ -134,8 +115,7 @@ function main() {
             lastFpsUpdate = now;
         }
 
-        // ---- Задержка для управления частотой кадров ----
-        delay(5); // ~60 FPS максимум
+        delay(5);
     }
 
     keyboard.setLongPress(false);
