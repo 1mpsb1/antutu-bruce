@@ -163,7 +163,7 @@ function testBitwise() {
 }
 
 function testRamRead() {
-    var size = 32000; 
+    var size = 16000; 
     var arr = [];
     for (var i = 0; i < size; i++) {
         arr[i] = Math.floor(Math.random() * 256);
@@ -179,7 +179,7 @@ function testRamRead() {
 }
 
 function testSDWrite() {
-    var dataSize = 32000;
+    var dataSize = 16000;
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var data = "";
     for (var i = 0; i < dataSize; i++) data += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -197,7 +197,7 @@ function testSDWrite() {
 }
 
 function testSDRead() {
-    var dataSize = 32000;
+    var dataSize = 16000;
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var data = "";
     for (var i = 0; i < dataSize; i++) data += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -216,7 +216,7 @@ function testSDRead() {
 }
 
 function testLFSWrite() {
-    var dataSize = 32000;
+    var dataSize = 16000;
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var data = "";
     for (var i = 0; i < dataSize; i++) data += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -234,7 +234,7 @@ function testLFSWrite() {
 }
 
 function testLFSRead() {
-    var dataSize = 32000;
+    var dataSize = 16000;
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var data = "";
     for (var i = 0; i < dataSize; i++) data += chars.charAt(Math.floor(Math.random() * chars.length));
